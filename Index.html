@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>App Hora</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            font-size: 12vw; /* Tamaño grande adaptado a la pantalla */
+            color: #333;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="resultado">Cargando...</h1>
+
+    <script>
+        function calcular() {
+            const ahora = new Date();
+            const diaSemana = ahora.getDay(); // 0 = Domingo, 1 = Lunes, ..., 5 = Viernes, 6 = Sábado
+            const hora = ahora.getHours();
+            const minuto = ahora.getMinutes();
+            const segundo = ahora.getSeconds();
+            
+            const elementoResultado = document.getElementById("resultado");
+
+            // 1. Si es Sábado (6) o Domingo (0), no muestra nada
+            if (diaSemana === 0 || diaSemana === 6) {
+                elementoResultado.innerText = "";
+                return;
+            }
+
+            // Convertimos la hora actual a minutos totales desde medianoche para comparar fácilmente
+            const minutosActualesDesdeMidnight = (hora * 60) + minuto + (segundo / 60);
+            const horaInicio = 7 * 60; // 07:00 en minutos (420 min)
+
+            // 2. Cualquier día antes de las 7:00 no debe mostrar nada
+            if (minutosActualesDesdeMidnight < horaInicio) {
+                elementoResultado.innerText = "";
+                return;
+            }
+
+            let resultado = 0;
+
+            // 3. De Lunes (1) a Jueves (4)
+            if (diaSemana >= 1 && diaSemana <= 4) {
+                const horaFinJueves = (15 * 60) + 30; // 15:30 en minutos (930 min)
+                
+                // Si pasa de las 15:30, no muestra nada
+                if (minutosActualesDesdeMidnight > horaFinJueves) {
+                    elementoResultado.innerText = "";
+                    return;
+                }
+
+                // Cálculo para Lunes a Jueves (divisor 495)
+                const minutosTotalesDecimales = minuto + (segundo / 60);
+                resultado = ((((hora - 7) * 60) + minutosTotalesDecimales) / 495) * 100;
+            } 
+            // 4. Si es Viernes (5)
+            else if (diaSemana === 5) {
+                const horaFinViernes = (14 * 60) + 30; // 14:30 (14:30 en formato 24h asumo que te referías a las 2:30 PM)
+                
+                // Si pasa de las 14:30, no muestra nada
+                if (minutosActualesDesdeMidnight > horaFinViernes) {
+                    elementoResultado.innerText = "";
+                    return;
+                }
+
+                // Cálculo para Viernes (divisor 420)
+                const minutosTotalesDecimales = minuto + (segundo / 60);
+                resultado = ((((hora - 7) * 60) + minutosTotalesDecimales) / 420) * 100;
+            }
+
+            // Mostramos el resultado con 2 decimales y el símbolo de porcentaje
+            elementoResultado.innerText = resultado.toFixed(2) + "%";
+        }
+
+        calcular();
+        setInterval(calcular, 200); // Se actualiza 5 veces por segundo para ver los segundos fluidos
+    </script>
+</body>
+</html>
